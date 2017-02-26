@@ -1,4 +1,4 @@
-# rekogition_osx_tagfile
+# rekognition_osx_tagfile
 Takes local OSX directory of images and uses Amazon Rekognition to tag them using OSX tags
 
 Simple fun quick hack to play with.
