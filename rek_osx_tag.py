@@ -1,4 +1,3 @@
-"""Loops through directory and gathers Rekogition tags for each image."""
 import boto3
 import os
 import subprocess
@@ -57,8 +56,13 @@ if __name__ == '__main__':
         return Result
 
     for fn in os.listdir(sourceDirectory):
-        imagename = sourceDirectory + fn
+        imagename = sourceDirectory + "/" + fn
+        imagesize = os.path.getsize(imagename) 
         print imagename
-        if os.path.isfile(imagename):
+        if imagesize > 5242880:
+            print "Skipping %s: filesize exceeds maximum of 5242880 bytes" % imagename
+        elif os.path.isfile(imagename):
             tags = gettags(fn)
             writexattrs(imagename, tags)
+        else:
+            print imagename + " is not a file"
