@@ -13,8 +13,8 @@ takes a file argument and processes just that single image with rekognition and 
 Automator example to run the rek_osx_tagfile.py each time a new file is copied into that folder. As you copy new images into a folder, this will automatically tag them for you.
 
 #TODO:
-- Consolidate single image processing into main script to support either --directory or --file [Easy]
-- ~Test if image before sending to rekognition~ Done
-- ~Add threading to improve performance dramatically~ Done
+- [Open, Easy] Consolidate single image processing into main script to support either --directory or --file
+- [Done ~~Test if image before sending to rekognition~~
+- [Done] ~~Add threading to improve performance dramatically~~
 
 
