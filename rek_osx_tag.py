@@ -1,12 +1,13 @@
 """Loops through directory and gathers Rekogition tags for each image."""
 from __future__ import print_function
-import boto3
 import os
 import subprocess
 from optparse import OptionParser
 import mimetypes
 import concurrent.futures
 import sys
+import time
+import boto3
 if sys.version_info[0] < 3:
     from itertools import izip_longest as zip_longest
 else:
@@ -80,9 +81,12 @@ if __name__ == '__main__':
         default=".",
         help="Specify directory of photos to tag e.g. /Media/Photos/")
     (options, args) = parser.parse_args()
-    images = images_in_dir(options.source_directory)
+    start = time.time()
+    images = list(images_in_dir(options.source_directory))
     # Use as many processes as we have CPU
     executor = concurrent.futures.ProcessPoolExecutor()
     # Use groups of 20 for each process
     futures = [executor.submit(put_tags, group) for group in grouper(images, 20)]
     concurrent.futures.wait(futures)
+    end = time.time()
+    print("Processed {} images in {:.2f} seconds".format(len(images), end - start))
