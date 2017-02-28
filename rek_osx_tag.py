@@ -1,24 +1,45 @@
 """Loops through directory and gathers Rekogition tags for each image."""
 from __future__ import print_function
+import io
 import os
-import subprocess
 from optparse import OptionParser
+import subprocess
 import mimetypes
 import concurrent.futures
 import sys
 import time
 import boto3
+from PIL import Image
+
 if sys.version_info[0] < 3:
     from itertools import izip_longest as zip_longest
 else:
     from itertools import zip_longest
 
+IMG_RESIZE = (2000, 2000)
 
-def gettags(source_image, client, min_confidence):
-    """Returns Tags for requested image"""
+
+def get_tags_old(source_image, client, min_confidence):
     with open(source_image, 'rb') as image:
         response = client.detect_labels(
             Image={'Bytes': image.read()},
+            MaxLabels=50,
+            MinConfidence=min_confidence
+        )
+    return [tag["Name"] for tag in response["Labels"]]
+
+
+def get_tags(source_image, client, min_confidence):
+    """Returns Tags for requested image"""
+    with open(source_image, 'rb') as image:
+        img = Image.open(image)
+        if img.size[0] > 2000 and img.size[1] > 2000:
+            img.thumbnail(IMG_RESIZE, Image.ANTIALIAS)
+        buf = io.BytesIO()
+        img.save(buf, "JPEG", optimize=True, quality=85)
+        buf.seek(0)
+        response = client.detect_labels(
+            Image={'Bytes': buf.read()},
             MaxLabels=50,
             MinConfidence=min_confidence
         )
@@ -47,12 +68,8 @@ def images_in_dir(source_directory):
         if not os.path.isfile(pth):
             continue
         ftype = mimetypes.guess_type(pth)[0]
-        imgsize = os.path.getsize(pth)
         if not ftype and "image" not in ftype:
             print("Skipping {} is not a known type".format(pth))
-            continue
-        if imgsize >= 5242880:
-            print("Skipping {} is over 5242880 bytes".format(pth))
             continue
         yield pth
 
@@ -69,7 +86,7 @@ def put_tags(images, min_confidence):
     for image in images:
         if image:
             try:
-                writexattrs(image, gettags(image, client, min_confidence))
+                writexattrs(image, get_tags(image, client, min_confidence))
             except Exception as ex:
                 print(ex, image)
 
