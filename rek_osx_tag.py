@@ -98,13 +98,23 @@ if __name__ == '__main__':
         default=".",
         help="Specify directory of photos to tag e.g. /Media/Photos/")
     parser.add_option(
+        "-f", "--file",
+        dest="source_file",
+        help="Specify single file to tag e.g. /Media/Photos/myimage.jpg") 
+    parser.add_option(
         "-c", "--confidence",
         dest="confidence",
         default=50,
         help="Specify the minimum confidence for a label to be applied")
     (options, args) = parser.parse_args()
+
     start = time.time()
-    images = list(images_in_dir(options.source_directory))
+    if options.source_file:
+        imagelist = [options.source_file]
+        images = imagelist
+    else:
+        images = list(images_in_dir(options.source_directory))
+
     # Use as many processes as we have CPU
     executor = concurrent.futures.ProcessPoolExecutor()
     # Use groups of 20 for each process
