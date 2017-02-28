@@ -4,13 +4,10 @@ Takes local OSX directory of images and uses Amazon Rekognition to tag them usin
 Simple fun quick hack to play with. Be sure to use the latest Boto, this was built with 1.4.4. Requires ~/.aws/credentials file.
 
 **rek_osx_tag.py**
-takes a directory argument and processes all images by sending them to rekognition, getting tags, and applying them using OSX tags.
-
-**rek_osx_tagfile.py**
-takes a file argument and processes just that single image with rekognition and sets the tags using OSX tags. Quickly done to use with an OSX Finder Automator workflow
+takes either a directory (-d) or single file (-f) argument and processes images by sending them to rekognition, getting tags, and applying them using OSX tags.
 
 **rekognition_tagPhotos.workflow.zip**
-Automator example to run the rek_osx_tagfile.py each time a new file is copied into that folder. As you copy new images into a folder, this will automatically tag them for you.
+Automator example to run the 'rek_osx_tag.py -f [imagename]' each time a new file is copied into that folder. As you copy new images into a folder, this will automatically tag them for you.
 
 #TODO:
 - [Open, Easy] Consolidate single image processing into main script to support either --directory or --file
