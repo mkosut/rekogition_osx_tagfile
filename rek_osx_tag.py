@@ -14,13 +14,13 @@ else:
     from itertools import zip_longest
 
 
-def gettags(source_image, client):
+def gettags(source_image, client, min_confidence):
     """Returns Tags for requested image"""
     with open(source_image, 'rb') as image:
         response = client.detect_labels(
             Image={'Bytes': image.read()},
             MaxLabels=50,
-            MinConfidence=50
+            MinConfidence=min_confidence
         )
     return [tag["Name"] for tag in response["Labels"]]
 
@@ -48,7 +48,7 @@ def images_in_dir(source_directory):
             continue
         ftype = mimetypes.guess_type(pth)[0]
         imgsize = os.path.getsize(pth)
-        if ftype not in ["image/png", "image/jpeg"]:
+        if not ftype and "image" not in ftype:
             print("Skipping {} is not a known type".format(pth))
             continue
         if imgsize >= 5242880:
@@ -64,12 +64,12 @@ def grouper(iterable, n, fillvalue=None):
     return zip_longest(*args, fillvalue=fillvalue)
 
 
-def put_tags(images):
+def put_tags(images, min_confidence):
     client = boto3.client('rekognition')
     for image in images:
         if image:
             try:
-                writexattrs(image, gettags(image, client))
+                writexattrs(image, gettags(image, client, min_confidence))
             except Exception as ex:
                 print(ex, image)
 
@@ -80,13 +80,22 @@ if __name__ == '__main__':
         dest="source_directory",
         default=".",
         help="Specify directory of photos to tag e.g. /Media/Photos/")
+    parser.add_option(
+        "-c", "--confidence",
+        dest="confidence",
+        default=50,
+        help="Specify the minimum confidence for a label to be applied")
     (options, args) = parser.parse_args()
     start = time.time()
     images = list(images_in_dir(options.source_directory))
     # Use as many processes as we have CPU
     executor = concurrent.futures.ProcessPoolExecutor()
     # Use groups of 20 for each process
-    futures = [executor.submit(put_tags, group) for group in grouper(images, 20)]
-    concurrent.futures.wait(futures)
+    futures = [executor.submit(put_tags, group, options.confidence) for group in grouper(images, 20)]
+    results = concurrent.futures.wait(futures, return_when=concurrent.futures.ALL_COMPLETED)
+    for result in results.done:
+        ex = result.exception()
+        if ex:
+            print(ex)
     end = time.time()
     print("Processed {} images in {:.2f} seconds".format(len(images), end - start))
