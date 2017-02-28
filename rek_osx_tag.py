@@ -68,7 +68,7 @@ def images_in_dir(source_directory):
         if not os.path.isfile(pth):
             continue
         ftype = mimetypes.guess_type(pth)[0]
-        if not ftype and "image" not in ftype:
+        if ftype=='None' and "image" not in ftype:
             print("Skipping {} is not a known type".format(pth))
             continue
         yield pth
