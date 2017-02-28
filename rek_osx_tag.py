@@ -33,7 +33,7 @@ def get_tags(source_image, client, min_confidence):
     """Returns Tags for requested image"""
     with open(source_image, 'rb') as image:
         img = Image.open(image)
-        if img.size[0] > 2000 and img.size[1] > 2000:
+        if img.size[0] > IMG_RESIZE[0] and img.size[1] > IMG_RESIZE[1]:
             img.thumbnail(IMG_RESIZE, Image.ANTIALIAS)
         buf = io.BytesIO()
         img.save(buf, "JPEG", optimize=True, quality=85)
