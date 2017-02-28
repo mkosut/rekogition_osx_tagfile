@@ -10,8 +10,8 @@ takes either a directory (-d) or single file (-f) argument and processes images 
 Automator example to run the 'rek_osx_tag.py -f [imagename]' each time a new file is copied into that folder. As you copy new images into a folder, this will automatically tag them for you.
 
 #TODO:
-- [Open, Easy] Consolidate single image processing into main script to support either --directory or --file
-- [Done ~~Test if image before sending to rekognition~~
+- [Done] ~~Consolidate single image processing into main script to support either --directory or --file~~
+- [Done] ~~Test if image before sending to rekognition~~
 - [Done] ~~Add threading to improve performance dramatically~~
 
 
