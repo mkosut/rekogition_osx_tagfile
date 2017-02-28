@@ -1,7 +1,7 @@
 # rekognition_osx_tagfile
 Takes local OSX directory of images and uses Amazon Rekognition to tag them using OSX tags
 
-Simple fun quick hack to play with. Be sure to use the latest Boto, this was built with 1.4.4.
+Simple fun quick hack to play with. Be sure to use the latest Boto, this was built with 1.4.4. Requires ~/.aws/credentials file.
 
 **rek_osx_tag.py**
 takes a directory argument and processes all images by sending them to rekognition, getting tags, and applying them using OSX tags.
