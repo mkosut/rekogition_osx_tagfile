@@ -62,16 +62,18 @@ def writexattrs(fn, tags):
         subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
 
 
-def images_in_dir(source_directory):
-    for fn in os.listdir(os.path.expanduser(source_directory)):
-        pth = os.path.join(source_directory, fn)
-        if not os.path.isfile(pth):
-            continue
-        ftype = mimetypes.guess_type(pth)[0]
-        if ftype=='None' and "image" not in ftype:
-            print("Skipping {} is not a known type".format(pth))
-            continue
-        yield pth
+def images_in_dir(source_directory, recursive):
+    for root, dirs, files in os.walk(source_directory):
+        for fn in files:
+            pth = os.path.join(root, fn)
+            ftype = mimetypes.guess_type(pth)[0]
+            if not ftype or "image" not in ftype:
+                print("Skipping {} is not a known type".format(pth))
+                continue
+            yield pth
+
+        if not recursive:
+            break
 
 
 def grouper(iterable, n, fillvalue=None):
@@ -106,14 +108,18 @@ if __name__ == '__main__':
         dest="confidence",
         default=50,
         help="Specify the minimum confidence for a label to be applied")
+    parser.add_option("-r", "--recursive",
+        dest="recursive",
+        default=False,
+        action="store_true",
+        help="Perform recursive search")
     (options, args) = parser.parse_args()
 
     start = time.time()
     if options.source_file:
-        imagelist = [options.source_file]
-        images = imagelist
+        images = [options.source_file]
     else:
-        images = list(images_in_dir(options.source_directory))
+        images = list(images_in_dir(options.source_directory, options.recursive))
 
     # Use as many processes as we have CPU
     executor = concurrent.futures.ProcessPoolExecutor()
